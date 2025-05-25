@@ -5,8 +5,6 @@
     border: 0;
 }
 
-
-
 body {
     font-family: Arial, sans-serif;
     max-width: 600px;
@@ -30,7 +28,6 @@ button:disabled {
     cursor: not-allowed;
 }
 
-
 input,
 textarea {
     width: 100%;
@@ -46,8 +43,11 @@ textarea {
     resize: none;/
 }
 
+.submit-btn {
+    margin-bottom: 1rem;
+}
 
-.item {
+.post {
     border: 1px solid #e0e0e0;
     padding: 1em;
     margin-bottom: 1em;
@@ -55,12 +55,12 @@ textarea {
     background: #fafafa;
 }
 
-.item h3 {
+.post h3 {
     margin: 0 0 0.5em;
     font-size: 1.2rem;
 }
 
-.item p {
+.post p {
     margin: 0.25em 0;
 }
 

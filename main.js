@@ -9,6 +9,8 @@ const postsContainer = document.querySelector("#postsContainer");
 
 postForm.addEventListener("submit", (event) => {
     event.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = "publishing.."
     const title = titleInp.value.trim();
     const author = authorInp.value.trim();
     const content = contentInp.value.trim();
@@ -93,6 +95,8 @@ function renderPosts() {
         </div>
         `;
         postsContainer.appendChild(div);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Publish"
     });
 }
 
