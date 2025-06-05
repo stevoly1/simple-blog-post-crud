@@ -1,3 +1,4 @@
+const STORAGE_KEY = "blogPosts";
 const blogPosts = [];
 let currentId = null;
 const postForm = document.querySelector(".postForm");
@@ -6,6 +7,23 @@ const authorInp = postForm.querySelector(".author");
 const contentInp = postForm.querySelector(".content");
 const submitBtn = postForm.querySelector(".submit-btn");
 const postsContainer = document.querySelector("#postsContainer");
+
+
+
+// Load posts from localStorage if available
+window.addEventListener("DOMContentLoaded", ()=>{
+    const savedPosts = localStorage.getItem(STORAGE_KEY);
+    try {
+      const parsedPosts = JSON.parse(savedPosts);
+      if (Array.isArray(parsedPosts)) {
+        blogPosts.push(...parsedPosts);
+      }
+      renderPosts();
+    } catch (error) {
+      console.error("Error parsing saved posts:", error);
+      blogPosts = []
+    }
+})
 
 postForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -45,6 +63,7 @@ postForm.addEventListener("submit", (event) => {
   submitBtn.textContent = "Publish";
 }
     postForm.reset();
+    saveToLocalStorage();
     renderPosts();
 });
 
@@ -58,6 +77,7 @@ postForm.addEventListener("submit", (event) => {
         const postIndex = blogPosts.findIndex((post) => post.id === postId);
         if (postIndex !== -1) {
             blogPosts.splice(postIndex, 1);
+            saveToLocalStorage();
             renderPosts();
         }
     } else if (event.target.classList.contains("edit-btn")) {
@@ -70,11 +90,18 @@ postForm.addEventListener("submit", (event) => {
             contentInp.value = post.content;
             currentId = postId;
             submitBtn.textContent = "Update Post";
+            saveToLocalStorage();
         }
     }
 }
 );
 
+// function to save posts to localStorage
+function saveToLocalStorage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(blogPosts));
+}
+
+// Function to render posts in the postsContainer
 function renderPosts() {
     postsContainer.innerHTML = "";
 
