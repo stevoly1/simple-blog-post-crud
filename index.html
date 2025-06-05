@@ -9,9 +9,12 @@
 <body>
     <h1>Create a New Blog Post</h1>
   <form class="postForm">
+  
     <input class="title" type="text" name="title" placeholder="Post Title" required />
     <input class="author" name="author" type="text" placeholder="Post Author" required/>
     <textarea class="content" name="content" placeholder="Write your post here…" required></textarea>
+    <label for="imageInput">Attach an image (optional):</label>
+    <input class= "imageInput" type="file" id="imageInput" accept="image/*" />
     <button class="submit-btn" type="submit">Publish</button>
   </form>
 

@@ -5,12 +5,13 @@ const postForm = document.querySelector(".postForm");
 const titleInp = postForm.querySelector(".title");
 const authorInp = postForm.querySelector(".author");
 const contentInp = postForm.querySelector(".content");
+const imageInput = postForm.querySelector('#imageInput')
 const submitBtn = postForm.querySelector(".submit-btn");
 const postsContainer = document.querySelector("#postsContainer");
 
 
 
-// Load posts from localStorage if available
+// Load posts from localStorage if available and push into blogPosts
 window.addEventListener("DOMContentLoaded", ()=>{
     const savedPosts = localStorage.getItem(STORAGE_KEY);
     try {
@@ -29,42 +30,25 @@ postForm.addEventListener("submit", (event) => {
     event.preventDefault();
     submitBtn.disabled = true;
     submitBtn.textContent = "publishing.."
-    const title = titleInp.value.trim();
-    const author = authorInp.value.trim();
-    const content = contentInp.value.trim();
-    if (!title || !author || !content) {
-        alert("Please fill in all fields.");
-        return;
+
+    const file = imageInput.files[0];
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const imageInBase64 = event.target.result;
+            saveBlogPost(imageInBase64);
+        };
+        reader.readAsDataURL(file);
+        reader.onerror = (error) => {
+            console.error (`an error occur when loading file ${error}`)
+        
+          alert("cannot load files");
+        };
+    }else{
+        saveBlogPost(null);
     }
 
-    if (currentId == null) {
-        // when currentId is null, we are creating a new post
-    const newPost = {
-        id: crypto.randomUUID(),
-        title: title,
-        author: author,
-        content: content,
-        date: new Date().toLocaleString(),
-    };
-    blogPosts.push(newPost);
-
-
-}else {
-  // update existing post
-  const postIndex = blogPosts.findIndex((post) => post.id === currentId);
-  if (postIndex !== -1) {
-    blogPosts[postIndex].title = title;
-    blogPosts[postIndex].author = author;
-    blogPosts[postIndex].content = content;
-    blogPosts[postIndex].date = new Date().toLocaleString();
-  }
-  // reset currentId and the button after update 
-  currentId = null;
-  submitBtn.textContent = "Publish";
-}
-    postForm.reset();
-    saveToLocalStorage();
-    renderPosts();
 });
 
 
@@ -96,9 +80,64 @@ postForm.addEventListener("submit", (event) => {
 }
 );
 
+
+// function that save the post ,either new post or edit
+
+function saveBlogPost (imageData){
+    const title = titleInp.value.trim();
+    const author = authorInp.value.trim();
+    const content = contentInp.value.trim();
+    if (!title || !author || !content) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (currentId == null) {
+      // when currentId is null, we are creating a new post
+      const newPost = {
+        id: crypto.randomUUID(),
+        title: title,
+        author: author,
+        content: content,
+        image : imageData,
+        date: new Date().toLocaleString(),
+      };
+      blogPosts.push(newPost);
+    } else {
+      // update existing post
+      const postIndex = blogPosts.findIndex((post) => post.id === currentId);
+      if (postIndex !== -1) {
+        blogPosts[postIndex].title = title;
+        blogPosts[postIndex].author = author;
+        blogPosts[postIndex].content = content;
+        blogPosts[postIndex].image =
+          imageData !== null ? imageData : blogPosts[postIndex].image;
+        blogPosts[postIndex].date = new Date().toLocaleString();
+      }
+      // reset currentId and the button after update
+      currentId = null;
+      submitBtn.textContent = "Publish";
+    }
+
+    postForm.reset();
+    saveToLocalStorage();
+    renderPosts();
+};
+
 // function to save posts to localStorage
 function saveToLocalStorage() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(blogPosts));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(blogPosts));
+  } catch (err) {
+    if (err.name === "QuotaExceededError") {
+      alert(
+        "Cannot save post: you’ve exceeded storage quota. " +
+          "Try removing some posts or upload smaller images."
+      );
+    } else {
+      console.error("Unexpected localStorage error:", err);
+    }
+  }
 }
 
 // Function to render posts in the postsContainer
@@ -111,7 +150,13 @@ function renderPosts() {
         const div = document.createElement("div");
         div.className = "post";
         div.dataset.id = post.id;
+        // conditionally build image html if available
+        let imgHTML = "";
+        if (post.image) {
+          imgHTML = `<img src="${post.image}" alt="Post Image" />`;
+        }
         div.innerHTML = `
+        ${imgHTML}
          <h2>${post.title}</h2>
           <p><em>Posted on: ${post.date}</em></p>
           <p><em>Posted by: ${post.author}</em></p>

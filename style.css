@@ -38,6 +38,10 @@ textarea {
     font-size: 1rem;
     box-sizing: border-box;
 }
+input[type="file"] {
+    margin-top: 0.25em;
+    margin-bottom: 0.75em;
+  }
 
 textarea {
     resize: none;/
@@ -63,7 +67,16 @@ textarea {
 .post p {
     margin: 0.25em 0;
 }
-
+.post img {
+    display: block;
+    max-width: 34rem;                      
+    width: 100%;
+    aspect-ratio: 5/4;             
+    margin-bottom: 0.75em;     
+    border-radius: 4px;        
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+    object-fit: cover;        
+  }
 
 .controls {
     margin-top: 0.75em;
