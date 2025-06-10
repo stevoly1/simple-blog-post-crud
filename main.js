@@ -4,7 +4,6 @@ const dbVer = 1;
 const storeName = "blogPosts";
 let db;  //to hold the db objects on every request
 let blogPosts = [];
-
 // open(create) indexDB request
 // firstly check if the browser supports indexedDB
 
@@ -20,7 +19,7 @@ if (!window.indexedDB) {
 const openDbReq = indexedDB.open(dbName, dbVer);
 
 // upgrade the db and set a store and index on new open
-openDbReq.onupgradeneeded = function (event){
+openDbReq.onupgradeneeded = function (event) {
     db = event.target.result;
     if (!db.objectStoreNames.contains(storeName)) {
         const store = db.createObjectStore(storeName, { keyPath: "id" });
@@ -30,7 +29,7 @@ openDbReq.onupgradeneeded = function (event){
 };
 
 // on db open success it should load content from db into blogpost
-openDbReq.onsuccess = function (event){
+openDbReq.onsuccess = function (event) {
     db = event.target.result;
     loadAllFromDB();
 
@@ -116,7 +115,7 @@ postsContainer.addEventListener("click", (event) => {
                 renderPosts();
             }
             tx.onerror = (event) => {
-              console.error("DB delete failed:", event.target.error);
+                console.error("DB delete failed:", event.target.error);
             };
         }
     } else if (event.target.classList.contains("edit-btn")) {
@@ -124,24 +123,24 @@ postsContainer.addEventListener("click", (event) => {
         const postId = postDiv.dataset.id;
         const post = blogPosts.find((p) => p.id === postId);
         if (post) {
-          titleInp.value = post.title;
-          authorInp.value = post.author;
-          contentInp.value = post.content;
-          currentId = postId;
-          submitBtn.textContent = "Update Post";
+            titleInp.value = post.title;
+            authorInp.value = post.author;
+            contentInp.value = post.content;
+            currentId = postId;
+            submitBtn.textContent = "Update Post";
 
-          // it will scroll to the editor and gives focus to content
-          // 1) Calculate the Y offset of the form
-          const rect = postForm.getBoundingClientRect();
-          const formY = window.scrollY + rect.top;
+            // it will scroll to the editor and gives focus to content
+            // 1) Calculate the Y offset of the form
+            const rect = postForm.getBoundingClientRect();
+            const formY = window.scrollY + rect.top;
 
-          // 2) Smooth-scroll to that Y coordinate over 600ms
-          smoothScrollTo(formY, 600);
+            // 2) Smooth-scroll to that Y coordinate over 600ms
+            smoothScrollTo(formY, 600);
 
-          // 3) Once scrolled, focus the title (add a small timeout for safety)
-          setTimeout(() => {
-            contentInp.focus();
-          }, 620);
+            // 3) Once scrolled, focus the title (add a small timeout for safety)
+            setTimeout(() => {
+                contentInp.focus();
+            }, 620);
         }
     }
 }
@@ -194,11 +193,11 @@ function saveBlogPost(imageData) {
         const tx = db.transaction(storeName, "readwrite");
         tx.objectStore(storeName).add(newPost);
         tx.oncomplete = () => {
-          renderPosts();
-          postForm.reset();
+            renderPosts();
+            postForm.reset();
         };
         tx.onerror = (event) => {
-          console.error("DB add failed:", event.target.error);
+            console.error("DB add failed:", event.target.error);
         };
 
 
@@ -207,10 +206,10 @@ function saveBlogPost(imageData) {
         const postIndex = blogPosts.findIndex((post) => post.id === currentId);
         const oldPost = blogPosts[postIndex];
         if (postIndex === -1) {
-          console.warn("Trying to update a post that isn't in blogPosts[]");
-          return;
+            console.warn("Trying to update a post that isn't in blogPosts[]");
+            return;
         }
-       
+
         if (postIndex !== -1) {
             oldPost.title = title;
             oldPost.author = author;
@@ -286,27 +285,27 @@ function renderPosts() {
 
 // smooth scroll from the internet
 function smoothScrollTo(targetY, duration = 500) {
-  const startY = window.scrollY || window.pageYOffset;
-  const deltaY = targetY - startY;
-  const startTime = performance.now();
+    const startY = window.scrollY || window.pageYOffset;
+    const deltaY = targetY - startY;
+    const startTime = performance.now();
 
-  // An ease-in-out cubic function (t from 0→1)
-  function easeInOutCubic(t) {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  }
-
-  function step(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1); // clamp 0→1
-    const eased = easeInOutCubic(progress);
-    window.scrollTo(0, startY + deltaY * eased);
-
-    if (progress < 1) {
-      requestAnimationFrame(step);
+    // An ease-in-out cubic function (t from 0→1)
+    function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     }
-  }
 
-  requestAnimationFrame(step);
+    function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1); // clamp 0→1
+        const eased = easeInOutCubic(progress);
+        window.scrollTo(0, startY + deltaY * eased);
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        }
+    }
+
+    requestAnimationFrame(step);
 }
 
 
